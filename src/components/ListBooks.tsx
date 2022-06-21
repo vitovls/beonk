@@ -1,34 +1,97 @@
 import React, { useEffect, useState } from 'react'
 import Book from '../interfaces/Book'
+// import CardBook from './CardBook'
 
 export default function ListBooks() {
+  const URL_BASE = 'http://localhost:4000/books'
+
   const [books, setBooks] = useState<Book[]>([])
+  const [amountBooks, setAmountBooks] = useState(0)
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
   const [query, setQuery] = useState({
     by: '',
     search: '',
   })
-  useEffect(() => {
+  const [queryByYear, setQueryByYear] = useState({
+    to: '',
+    from: '',
+  })
+  const [filter, setFilter] = useState('none')
+
+  const fetchBooks = () => {
     setLoading(true)
-    fetch(`http://localhost:4000/books?_page=${page}&_limit=10`)
+    fetch(`${URL_BASE}?_page=${page}&_limit=10`)
       .then((res) => res.json())
       .then((data) => {
         setBooks(data)
         setLoading(false)
       })
-  }, [page])
-
-  const yearAcOrDC = (year: number) => (year >= 0 ? year : `${Math.abs(year)} A.C.`)
+    fetch(`${URL_BASE}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setAmountBooks(Math.ceil(data.length / 10))
+      })
+  }
 
   const searchByQuery = () => {
     setLoading(true)
-    fetch(`http://localhost:4000/books?${query.by}_like=${query.search}`)
+    fetch(`${URL_BASE}?${query.by}_like=${query.search}&_page=${page}&_limit=10`)
       .then((res) => res.json())
       .then((data) => {
         setBooks(data)
         setLoading(false)
       })
+    fetch(`${URL_BASE}?${query.by}_like=${query.search}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setAmountBooks(Math.ceil(data.length / 10))
+      })
+  }
+
+  const searchByYear = () => {
+    setLoading(true)
+    fetch(`${URL_BASE}?year_gte=${queryByYear.from}&year_lte=${queryByYear.to}&_page=${page}&_limit=10`)
+      .then((res) => res.json())
+      .then((data) => {
+        setBooks(data)
+        setLoading(false)
+      })
+    fetch(`${URL_BASE}?year_gte=${queryByYear.from}&year_lte=${queryByYear.to}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setAmountBooks(Math.ceil(data.length / 10))
+      })
+  }
+
+  useEffect(() => {
+    if (filter === 'none') {
+      fetchBooks()
+    }
+    if (filter === 'by query') {
+      searchByQuery()
+    }
+    if (filter === 'by year') {
+      searchByYear()
+    }
+  }, [page, filter])
+
+  const paging = (prevOrNext: string) => {
+    if (prevOrNext === 'prev' && page > 1) {
+      setPage(page - 1)
+    }
+    if (prevOrNext === 'next' && books.length === 10) {
+      setPage(page + 1)
+    }
+  }
+
+  const yearAcOrDC = (year: number) => (year >= 0 ? year : `${Math.abs(year)} A.C.`)
+
+  const resetFilter = (type: string) => {
+    setFilter('')
+    setTimeout(() => {
+      setFilter(type)
+    }, 500)
   }
 
   return (
@@ -52,11 +115,37 @@ export default function ListBooks() {
         <option value="author">Autor</option>
         <option value="language">Idioma</option>
       </select>
-      <button type="button" onClick={searchByQuery}>Pesquisar</button>
+      <button type="button" onClick={() => resetFilter('by query')}>Pesquisar</button>
+      <section>
+        <p>Buscar livros por periodo de publicação</p>
+        De:
+        <input
+          type="year"
+          placeholder="Ano"
+          onChange={(e) => {
+            setQueryByYear({
+              ...queryByYear,
+              from: e.target.value,
+            })
+          }}
+        />
+        Até:
+        <input
+          type="year"
+          placeholder="Ano"
+          onChange={(e) => {
+            setQueryByYear({
+              ...queryByYear,
+              to: e.target.value,
+            })
+          }}
+        />
+        <button onClick={() => resetFilter('by year')} type="button">Buscar</button>
+      </section>
       {loading && <p>Loading...</p>}
       {books.length < 1 && !loading && <p>Nenhum livro encontrado...</p>}
       {books.map((book) => (
-        <table>
+        <table key={book.title}>
           <thead>
             <tr>
               <th>Título</th>
@@ -71,17 +160,36 @@ export default function ListBooks() {
               <td>{book.author}</td>
               <td>{book.language}</td>
               <td>{yearAcOrDC(book.year)}</td>
+              {/* <CardBook book={book} /> */}
             </tr>
           </tbody>
         </table>
       ))}
-      <button type="button" onClick={() => setPage(page - 1)}>Anterior</button>
-      <input value={page} onChange={(event) => setPage(Number(event.target.value))} />
-      <button type="button">{page + 1}</button>
-      <button type="button">{page + 2}</button>
-      ...
-      <button type="button">{0}</button>
-      <button type="button" onClick={() => setPage(page + 1)}>Próxima</button>
+      <button
+        type="button"
+        onClick={() => paging('prev')}
+      >
+        Anterior
+      </button>
+      {amountBooks > 1 ? (
+        <>
+          {[...Array(amountBooks).keys()].map((e, i) => (
+            <button
+              key={amountBooks + e}
+              onClick={() => setPage(i + 1)}
+              type="button"
+              disabled={
+                page === i + 1 && true
+              }
+            >
+              {i + 1}
+            </button>
+          ))}
+        </>
+      ) : <button type="button">{page}</button>}
+      <button type="button" onClick={() => paging('next')}>
+        Próxima
+      </button>
     </div>
   )
 }

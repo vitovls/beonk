@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Book from '../interfaces/Book'
-// import CardBook from './CardBook'
+import CardBook from './CardBook'
+import yearAcOrDC from '../utils/yearAcOrDc'
 
 export default function ListBooks() {
   const URL_BASE = 'http://localhost:4000/books'
@@ -30,7 +31,7 @@ export default function ListBooks() {
     fetch(`${URL_BASE}`)
       .then((res) => res.json())
       .then((data) => {
-        setAmountBooks(Math.ceil(data.length / 10))
+        setAmountBooks(data.length)
       })
   }
 
@@ -45,7 +46,7 @@ export default function ListBooks() {
     fetch(`${URL_BASE}?${query.by}_like=${query.search}`)
       .then((res) => res.json())
       .then((data) => {
-        setAmountBooks(Math.ceil(data.length / 10))
+        setAmountBooks(data.length)
       })
   }
 
@@ -60,7 +61,7 @@ export default function ListBooks() {
     fetch(`${URL_BASE}?year_gte=${queryByYear.from}&year_lte=${queryByYear.to}`)
       .then((res) => res.json())
       .then((data) => {
-        setAmountBooks(Math.ceil(data.length / 10))
+        setAmountBooks(data.length)
       })
   }
 
@@ -84,8 +85,6 @@ export default function ListBooks() {
       setPage(page + 1)
     }
   }
-
-  const yearAcOrDC = (year: number) => (year >= 0 ? year : `${Math.abs(year)} A.C.`)
 
   const resetFilter = (type: string) => {
     setFilter('')
@@ -144,26 +143,32 @@ export default function ListBooks() {
       </section>
       {loading && <p>Loading...</p>}
       {books.length < 1 && !loading && <p>Nenhum livro encontrado...</p>}
+      <div>
+        Quantidade de livros encontrados:
+        {amountBooks}
+      </div>
       {books.map((book) => (
-        <table key={book.title}>
-          <thead>
-            <tr>
-              <th>Título</th>
-              <th>Autor</th>
-              <th>Idioma</th>
-              <th>Ano de Publicação</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>{book.title}</td>
-              <td>{book.author}</td>
-              <td>{book.language}</td>
-              <td>{yearAcOrDC(book.year)}</td>
-              {/* <CardBook book={book} /> */}
-            </tr>
-          </tbody>
-        </table>
+        <>
+          <table key={book.title}>
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Idioma</th>
+                <th>Ano de Publicação</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{book.title}</td>
+                <td>{book.author}</td>
+                <td>{book.language}</td>
+                <td>{yearAcOrDC(book.year)}</td>
+              </tr>
+            </tbody>
+          </table>
+          <CardBook key={`${book.title} ${book.author}`} book={book} />
+        </>
       ))}
       <button
         type="button"
@@ -173,7 +178,7 @@ export default function ListBooks() {
       </button>
       {amountBooks > 1 ? (
         <>
-          {[...Array(amountBooks).keys()].map((e, i) => (
+          {[...Array(Math.ceil(amountBooks / 10)).keys()].map((e, i) => (
             <button
               key={amountBooks + e}
               onClick={() => setPage(i + 1)}

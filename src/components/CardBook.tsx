@@ -2,10 +2,11 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import Book from '../interfaces/Book'
 import yearAcOrDC from '../utils/yearAcOrDc'
+import '../styles/CardBook.css'
 
-export default function CardBook({ book }: { book: Book }) {
+export default function CardBook({ book, visible }: { book: Book, visible: string }) {
   return (
-    <div>
+    <section className={`card-container_${visible}`}>
       <h1>{book.title}</h1>
       <img alt={`Foto do livro: ${book.title}`} src={book.imageLink} />
       <p>{book.author}</p>
@@ -14,7 +15,7 @@ export default function CardBook({ book }: { book: Book }) {
       <p>{book.pages}</p>
       <p>{yearAcOrDC(book.year)}</p>
       <a href={book.link}>Saiba mais</a>
-    </div>
+    </section>
   )
 }
 

@@ -1,0 +1,64 @@
+.list-header {
+  background-color: #2e1643;
+  padding: 15px;
+  display: flex;
+  color: #ffffff;
+}
+.list-header .list-inputs-search {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.list-header .list-inputs-search-year {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.list-header h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-right: 10px;
+}
+.list-header p {
+  font-size: 1rem;
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.list-quantity-books {
+  background-color: #8850bb;
+  padding: 5px;
+  color: #ffffff;
+  font-size: 14px;
+  text-align: end;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin-top: 10px;
+  height: 81vh;
+}
+table thead tr th {
+  padding: 10px;
+  text-align: left;
+}
+table tbody tr td {
+  padding: 10px;
+  text-align: left;
+}
+
+.list-pagination {
+  background-color: #8850bb;
+  padding: 5px;
+  font-size: 14px;
+  text-align: center;
+}
+.list-pagination button {
+  margin: 0 5px;
+  color: #ffffff;
+}
+.list-pagination button:disabled {
+  background-color: #2e1643;
+}/*# sourceMappingURL=ListBooks.css.map */

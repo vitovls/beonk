@@ -1,10 +1,10 @@
 import React from 'react'
 import ListBooks from './components/ListBooks'
+import './styles/global.css'
 
 function App() {
   return (
     <div className="App">
-      <h1>Hello BeonK</h1>
       <ListBooks />
     </div>
   )

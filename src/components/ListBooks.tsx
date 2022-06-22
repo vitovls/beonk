@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Book from '../interfaces/Book'
-import CardBook from './CardBook'
 import yearAcOrDC from '../utils/yearAcOrDc'
+import '../styles/ListBooks.css'
 
 export default function ListBooks() {
   const URL_BASE = 'http://localhost:4000/books'
@@ -87,6 +87,7 @@ export default function ListBooks() {
   }
 
   const resetFilter = (type: string) => {
+    setPage(1)
     setFilter('')
     setTimeout(() => {
       setFilter(type)
@@ -94,107 +95,109 @@ export default function ListBooks() {
   }
 
   return (
-    <div>
-      <h1>List of books</h1>
-      <input
-        onChange={(e) => setQuery({
-          ...query,
-          search: e.target.value,
-        })}
-        placeholder="Pesquisar por..."
-      />
-      <select
-        onChange={(e) => setQuery({
-          ...query,
-          by: e.target.value,
-        })}
-      >
-        <option value="">Por...</option>
-        <option value="title">Título</option>
-        <option value="author">Autor</option>
-        <option value="language">Idioma</option>
-      </select>
-      <button type="button" onClick={() => resetFilter('by query')}>Pesquisar</button>
-      <section>
-        <p>Buscar livros por periodo de publicação</p>
-        De:
-        <input
-          type="year"
-          placeholder="Ano"
-          onChange={(e) => {
-            setQueryByYear({
-              ...queryByYear,
-              from: e.target.value,
-            })
-          }}
-        />
-        Até:
-        <input
-          type="year"
-          placeholder="Ano"
-          onChange={(e) => {
-            setQueryByYear({
-              ...queryByYear,
-              to: e.target.value,
-            })
-          }}
-        />
-        <button onClick={() => resetFilter('by year')} type="button">Buscar</button>
-      </section>
+    <main className="list-container">
+      <header className="list-header">
+        <h1 className="list-title">Beonk</h1>
+        <section className="list-inputs-search">
+          <input
+            onChange={(e) => setQuery({
+              ...query,
+              search: e.target.value,
+            })}
+            placeholder="Pesquisar por..."
+          />
+          <select
+            onChange={(e) => setQuery({
+              ...query,
+              by: e.target.value,
+            })}
+          >
+            <option value="">Por...</option>
+            <option value="title">Título</option>
+            <option value="author">Autor</option>
+            <option value="language">Idioma</option>
+          </select>
+          <button type="button" onClick={() => resetFilter('by query')}>Pesquisar</button>
+        </section>
+        <section className="list-inputs-search-year">
+          <p>Buscar por periodo</p>
+          <input
+            type="year"
+            placeholder="De"
+            onChange={(e) => {
+              setQueryByYear({
+                ...queryByYear,
+                from: e.target.value,
+              })
+            }}
+          />
+          <p>-</p>
+          <input
+            type="year"
+            placeholder="Até"
+            onChange={(e) => {
+              setQueryByYear({
+                ...queryByYear,
+                to: e.target.value,
+              })
+            }}
+          />
+          <button onClick={() => resetFilter('by year')} type="button">Buscar</button>
+        </section>
+      </header>
       {loading && <p>Loading...</p>}
       {books.length < 1 && !loading && <p>Nenhum livro encontrado...</p>}
-      <div>
+      <div className="list-quantity-books">
         Quantidade de livros encontrados:
         {amountBooks}
       </div>
-      {books.map((book) => (
-        <>
-          <table key={book.title}>
-            <thead>
-              <tr>
-                <th>Título</th>
-                <th>Autor</th>
-                <th>Idioma</th>
-                <th>Ano de Publicação</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{book.title}</td>
-                <td>{book.author}</td>
-                <td>{book.language}</td>
-                <td>{yearAcOrDC(book.year)}</td>
-              </tr>
-            </tbody>
-          </table>
-          <CardBook key={`${book.title} ${book.author}`} book={book} />
-        </>
-      ))}
-      <button
-        type="button"
-        onClick={() => paging('prev')}
-      >
-        Anterior
-      </button>
-      {amountBooks > 1 ? (
-        <>
-          {[...Array(Math.ceil(amountBooks / 10)).keys()].map((e, i) => (
-            <button
-              key={amountBooks + e}
-              onClick={() => setPage(i + 1)}
-              type="button"
-              disabled={
+      <table>
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Autor</th>
+            <th>Idioma</th>
+            <th>Ano</th>
+          </tr>
+        </thead>
+        <tbody>
+          {books.map((book) => (
+            <tr key={book.title}>
+              <td>{book.title}</td>
+              <td>{book.author}</td>
+              <td>{book.language}</td>
+              <td>{yearAcOrDC(book.year)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <section className="list-pagination">
+        <button
+          type="button"
+          onClick={() => paging('prev')}
+        >
+          Anterior
+        </button>
+        {amountBooks > 1 ? (
+          <>
+            {[...Array(Math.ceil(amountBooks / 10)).keys()].map((e, i) => (
+              <button
+                key={amountBooks + e}
+                onClick={() => setPage(i + 1)}
+                type="button"
+                disabled={
                 page === i + 1 && true
               }
-            >
-              {i + 1}
-            </button>
-          ))}
-        </>
-      ) : <button type="button">{page}</button>}
-      <button type="button" onClick={() => paging('next')}>
-        Próxima
-      </button>
-    </div>
+              >
+                {i + 1}
+              </button>
+            ))}
+          </>
+        ) : <button type="button">{page}</button>}
+        <button type="button" onClick={() => paging('next')}>
+          Próxima
+        </button>
+      </section>
+    </main>
   )
 }

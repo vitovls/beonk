@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Book from '../interfaces/Book'
 import yearAcOrDC from '../utils/yearAcOrDc'
 import '../styles/ListBooks.css'
+import CardBook from './CardBook'
 
 export default function ListBooks() {
   const URL_BASE = 'http://localhost:4000/books'
@@ -19,6 +20,20 @@ export default function ListBooks() {
     from: '',
   })
   const [filter, setFilter] = useState('none')
+
+  const [modal, setModal] = useState({
+    show: 'disabled',
+    book: {
+      author: '',
+      country: '',
+      language: '',
+      link: '',
+      pages: 0,
+      title: '',
+      year: 0,
+      imageLink: '',
+    },
+  })
 
   const fetchBooks = () => {
     setLoading(true)
@@ -94,6 +109,21 @@ export default function ListBooks() {
     }, 500)
   }
 
+  const setBookToModal = (book: Book) => {
+    const { show } = modal
+    if (show === 'disabled') {
+      setModal({
+        show: 'enabled',
+        book,
+      })
+    } else {
+      setModal({
+        show: 'disabled',
+        book,
+      })
+    }
+  }
+
   return (
     <main className="list-container">
       <header className="list-header">
@@ -167,10 +197,12 @@ export default function ListBooks() {
               <td>{book.author}</td>
               <td>{book.language}</td>
               <td>{yearAcOrDC(book.year)}</td>
+              <td><button onClick={() => setBookToModal(book)} type="button">Mais detalhes</button></td>
             </tr>
           ))}
         </tbody>
       </table>
+      <CardBook book={modal.book} visible={modal.show} />
       <section className="list-pagination">
         <button
           type="button"
